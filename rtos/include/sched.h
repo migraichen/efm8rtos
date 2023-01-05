@@ -2,6 +2,8 @@
 #define __SCHED_H_
 
 #define STACK_SIZE	256
+#define REGS_SIZE	8
+
 #define RXBIT 0
 
 typedef uint8_t CoreReg_t;
@@ -14,7 +16,6 @@ struct sched_task {
 	CoreReg_t sp;
 	uint8_t * stack;
 	unsigned int id;
-	unsigned int delay;
 	TaskFunction_t func;
 	char * args;
 };

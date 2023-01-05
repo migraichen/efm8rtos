@@ -98,9 +98,9 @@ void ATaskFunction2(void)
     while (true) {
     	P2 ^= LED1R; // Oszi: Rot
     	if (flags & (1 << RXBIT)) {
-    	    TMR2CN0_TR2 = false;
+//    	    TMR2CN0_TR2 = false;
     	    putchar(rx_buffer);
-    	    TMR2CN0_TR2 = true;
+//    	    TMR2CN0_TR2 = true;
     	    flags &= ~(1 << RXBIT);
     	}
     }

@@ -17,7 +17,7 @@ volatile uint8_t xdata flags = 0x00;
 volatile char xdata rx_buffer;
 
 unsigned char xdata malloc_mempool[0x700];
-volatile uint8_t xdata ra[2];
+
 volatile struct sched_ctx * xdata ctx;
 
 void xTaskManager(void)
@@ -29,7 +29,7 @@ void xTaskManager(void)
     IE_EA = true;
 
     while (true) {
-    	P2 ^= LED2G; // Oszi: GrÃ¼n
+    	P2 ^= LED2G; // Oszi: Grün
     }
 }
 
@@ -110,9 +110,9 @@ int xTaskCreate(TaskFunction_t pxTaskCode, char * pcName)
 	task->stack[SP-1] = (unsigned int)(pxTaskCode) & 0xff;
 	/*
 	 * C51 adds push and pop instructions at the beginning and end of the interrupt routines
-	 * compare the assembler code to vertify the 12
+	 * compare the assembler code to vertify the 13
 	 */
-	task->sp   += 12;
+	task->sp   += 13;
 	task->id    = id++;
 	task->func  = pxTaskCode;
 	task->args  = pcName;
@@ -137,7 +137,7 @@ void xTaskDebug()
 	for (task = ctx->root; task != NULL; task = task->next) {
 		printf("ctx  %p\r\n", task->ctx);
 		printf("next %p\r\n", task->next);
-		printf("sp %x\r\n", task->sp);
+		printf("sp 0x%01x\r\n", task->sp);
 		printf("stack %p\r\n", task->stack);
 		printf("id %d\r\n", task->id);
 		printf("func %p\r\n", task->func);
@@ -155,7 +155,6 @@ void vTaskStartScheduler(void)
 
 	printf("vTaskStartScheduler\r\n");
 
-	task->sp = SP;
 	s[SP] = (unsigned int)(task->func) >> 8;
 	s[SP-1] = (unsigned int)(task->func) & 0xff;
 
@@ -188,44 +187,50 @@ SI_INTERRUPT (UART0_ISR, UART0_IRQn)
  * void TIMER2_ISR (void) interrupt TIMER2_IRQn
  * https://developer.arm.com/documentation/ka002595/latest
  * using this C51 hopefully saves the registers onto the stack by itsself before and after the ISR
- * The ISR takes about 2,75ms @ 24,5MHz to copy the 256 byte stack back and forth
+ * The ISR takes about 375us @ 24,5MHz to copy the 256 byte stack back and forth
  */
+
 SI_INTERRUPT (TIMER2_ISR, TIMER2_IRQn)
 {
 	struct sched_task * xdata task = ctx->head;
-	uint8_t idata * xdata s = 0;
-	unsigned int xdata i;
 
-	P2 ^= LED2R;  // Oszi: Gelb
+	uint8_t idata * dptr;
+	uint8_t xdata * xptr;
+	uint8_t j;
+
+	TMR2CN0_TF2H = 0;                            // Timer Interrupt quittieren
+
+//	P2 ^= LED2R;  // Oszi: Gelb
 
 //	WDTCN = 0xA5;
 
-	TMR2CN0_TF2H = 0;                            // Timer Interrupt quittieren
-	TMR2CN0_TR2 = false;						 // stop the Timer
+//	TMR2CN0_TR2 = false;						 // stop the Timer
 
 //	printf("vTaskSchedule\r\n");
 
 	task->sp = SP;
 
-	for (i=8; i<STACK_SIZE; i++)
-		task->stack[i] = s[i];
+	P2 ^= LED2R;  // Oszi: Gelb
+	memcpy(task->stack+REGS_SIZE, (uint8_t idata *)REGS_SIZE, STACK_SIZE-REGS_SIZE);
+	P2 ^= LED2R;  // Oszi: Gelb
 
 	task = ( ctx->head = task->next == NULL ? ctx->root : task->next );
 
-	ra[0] = *(uint8_t *)SP;
-	ra[1] = *(uint8_t *)(SP-1);
+	/*
+	 * memcpy takes about 100us and this loop about 250us, but we cannot use memcpy here
+	 * because it invokes a LCALL before we manipulate the stack, so on return we end up in nirvana
+	 */
 
-	for (i=8; i<STACK_SIZE; i++)
-		s[i] = task->stack[i];
-
-	SP += 2;
-
-	*(uint8_t idata *)SP = ra[0];
-	*(uint8_t idata *)(SP-1) = ra[1];
+	P2 ^= LED2R;  // Oszi: Gelb
+	xptr = task->stack+REGS_SIZE;
+	dptr = REGS_SIZE;
+	for (j = STACK_SIZE-REGS_SIZE; j; j--)
+		*dptr++ = *xptr++;
+	P2 ^= LED2R;  // Oszi: Gelb
 
 	SP = task->sp;
 
-	P2 ^= LED2R;  // Oszi: Gelb
+//	TMR2CN0_TR2 = true;						 // start the Timer again
 
-	TMR2CN0_TR2 = true;						 // start the Timer again
+//	P2 ^= LED2R;  // Oszi: Gelb
 }
