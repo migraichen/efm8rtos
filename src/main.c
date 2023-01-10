@@ -13,6 +13,9 @@ static void prvSetupHardware(void);
 
 void ATaskFunction1(void);
 void ATaskFunction2(void);
+void ATaskFunction3(void);
+
+extern void vTaskSchedule(unsigned int ticks);
 
 extern volatile struct sched_ctx * xdata ctx;
 
@@ -54,26 +57,27 @@ int main(void)
 
     xTaskInit();
 
-    xTaskCreate(ATaskFunction1, "BlinkTask");
-    xTaskCreate(ATaskFunction2, "RXTask");
-
-//    xTaskDebug();
+    xTaskCreate(ATaskFunction1, "WorkerTask", 255, 1);
+    xTaskCreate(ATaskFunction2, "RXTask", 3, 0);
+    xTaskCreate(ATaskFunction3, "BlinkTask", 2, 0);
 
     /* Start the created tasks and the watchdog */
     vTaskStartScheduler();
 
-    /* run into this loop until the first timer interrupt is fired */
+    /* we will never reach this point */
     while (true);
 }
 
 static void prvSetupHardware(void)
 {
 	SFRPAGE = 0x00;
+
 	enter_DefaultMode_from_RESET();
 
 	SCON0_TI = true;
 }
 
+/* high priority worker task, schould be called every millisecond */
 void ATaskFunction1(void)
 {
 	struct sched_task * xdata self = ctx->head;
@@ -84,9 +88,11 @@ void ATaskFunction1(void)
 
     while (true) {
     	P2 ^= LED1G; // Oszi: Blau
+    	vTaskSchedule(1);
     }
 }
 
+/* middle priority communication task */
 void ATaskFunction2(void)
 {
 	struct sched_task * xdata self = ctx->head;
@@ -96,12 +102,30 @@ void ATaskFunction2(void)
 	TMR2CN0_TR2 = true;
 
     while (true) {
-    	P2 ^= LED1R; // Oszi: Rot
+
     	if (flags & (1 << RXBIT)) {
-//    	    TMR2CN0_TR2 = false;
+    	    TMR2CN0_TR2 = false;
     	    putchar(rx_buffer);
-//    	    TMR2CN0_TR2 = true;
+    	    TMR2CN0_TR2 = true;
     	    flags &= ~(1 << RXBIT);
     	}
+    	vTaskSchedule(10);
     }
 }
+
+/* low priority blinky task, should be called every second */
+void ATaskFunction3(void)
+{
+	struct sched_task * xdata self = ctx->head;
+
+	TMR2CN0_TR2 = false;
+	printf("Hello from %s!\n\r", self->args);
+	TMR2CN0_TR2 = true;
+
+    while (true) {
+    	P2 ^= LED1R; // Oszi: Rot
+    	vTaskSchedule(1000);
+    }
+}
+
+

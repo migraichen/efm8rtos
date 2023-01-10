@@ -2,14 +2,19 @@
 <device:XMLDevice xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:device="http://www.silabs.com/ss/hwconfig/document/device.ecore" name="EFM8BB31F32G-A-QSOP24" partId="mcu.8051.efm8.bb3.efm8bb31f32g-a-qsop24" version="4.0.0" contextId="%DEFAULT%">
   <mode name="DefaultMode">
     <property object="ADC14_0" propertyId="ABPeripheral.included" value="true"/>
-    <property object="ADC14_0" propertyId="adc14.clockconfiguration.adcclockdivider" value="2"/>
+    <property object="ADC14_0" propertyId="adc14.clockconfiguration.adcclockdivider" value="4"/>
     <property object="ADC14_0" propertyId="adc14.powercontrol.enablelowpowermode" value="Enabled"/>
     <property object="ADC14_0" propertyId="adc14.throughput.conversiontrackingtimesetting" value="24"/>
     <property object="C2DEBUG_0" propertyId="ABPeripheral.included" value="true"/>
+    <property object="CIP51_0" propertyId="ABPeripheral.included" value="true"/>
+    <property object="CIP51_0" propertyId="cip51.prefetchenginecontrol.flashreadtiming" value="SYSCLK is below 50 MHz"/>
     <property object="CLOCK_0" propertyId="ABPeripheral.included" value="true"/>
     <property object="CLOCK_0" propertyId="clock.clockselect.clocksourcedivider" value="SYSCLK / 1"/>
+    <property object="CLOCK_0" propertyId="clock.clockselect.selectclocksource" value="Internal High Frequency Oscillator 1"/>
     <property object="CROSSBAR0" propertyId="xbar0.uart0.data" value="Enabled"/>
     <property object="DefaultMode" propertyId="mode.diagramLocation" value="100, 100"/>
+    <property object="HFOSC_0" propertyId="ABPeripheral.included" value="true"/>
+    <property object="HFOSC_0" propertyId="hfosc.highfrequencyoscillatorcontrol.49mhzoscillatorhfosc1" value="Always On"/>
     <property object="INTERRUPT_0" propertyId="ABPeripheral.included" value="true"/>
     <property object="INTERRUPT_0" propertyId="interrupt.interruptenable.enableallinterrupts" value="Enabled"/>
     <property object="INTERRUPT_0" propertyId="interrupt.interruptenable.enabletimer2interrupt" value="Enabled"/>
@@ -28,19 +33,17 @@
     <property object="P2.3" propertyId="ports.settings.outputmode" value="Push-pull"/>
     <property object="PBCFG_0" propertyId="pbcfg.settings.enablecrossbar" value="Enabled"/>
     <property object="TIMER01_0" propertyId="ABPeripheral.included" value="true"/>
-    <property object="TIMER01_0" propertyId="timer01.timer1highbyte.timer1highbyte" value="150"/>
+    <property object="TIMER01_0" propertyId="timer01.timer1highbyte.timer1highbyte" value="43"/>
     <property object="TIMER01_0" propertyId="timer01.timer1mode2:8bitcountertimerwithautoreload.targetoverflowfrequency" value="19200"/>
-    <property object="TIMER01_0" propertyId="timer01.timer1mode2:8bitcountertimerwithautoreload.timerreloadvalue" value="150"/>
+    <property object="TIMER01_0" propertyId="timer01.timer1mode2:8bitcountertimerwithautoreload.timerreloadvalue" value="43"/>
     <property object="TIMER16_2" propertyId="ABPeripheral.included" value="true"/>
-    <property object="TIMER16_2" propertyId="timer16.control.runcontrol" value="Start"/>
-    <property object="TIMER16_2" propertyId="timer16.control.timerrunningstate" value="Timer is Running"/>
     <property object="TIMER16_2" propertyId="timer16.highbyte.highbyte" value="252"/>
     <property object="TIMER16_2" propertyId="timer16.initandreloadvalue.targetoverflowfrequency" value="1000"/>
     <property object="TIMER16_2" propertyId="timer16.initandreloadvalue.timerinitvalue" value="64536"/>
-    <property object="TIMER16_2" propertyId="timer16.initandreloadvalue.timerreloadvalue" value="63494"/>
+    <property object="TIMER16_2" propertyId="timer16.initandreloadvalue.timerreloadvalue" value="61453"/>
     <property object="TIMER16_2" propertyId="timer16.lowbyte.lowbyte" value="24"/>
-    <property object="TIMER16_2" propertyId="timer16.reloadhighbyte.reloadhighbyte" value="248"/>
-    <property object="TIMER16_2" propertyId="timer16.reloadlowbyte.reloadlowbyte" value="6"/>
+    <property object="TIMER16_2" propertyId="timer16.reloadhighbyte.reloadhighbyte" value="240"/>
+    <property object="TIMER16_2" propertyId="timer16.reloadlowbyte.reloadlowbyte" value="13"/>
     <property object="TIMER16_3" propertyId="ABPeripheral.included" value="true"/>
     <property object="TIMER16_4" propertyId="ABPeripheral.included" value="true"/>
     <property object="TIMER16_5" propertyId="ABPeripheral.included" value="true"/>
@@ -51,10 +54,10 @@
     <property object="TIMER_SETUP_0" propertyId="timer_setup.timer1.timerrunningstate" value="Timer is Running"/>
     <property object="TIMER_SETUP_0" propertyId="timer_setup.timer1.timerswitch1:runcontrol" value="Start"/>
     <property object="UART_0" propertyId="ABPeripheral.included" value="true"/>
-    <property object="UART_0" propertyId="uart.serialportcontrol.actualbaudrate" value="9630 Baud"/>
+    <property object="UART_0" propertyId="uart.serialportcontrol.actualbaudrate" value="9585 Baud"/>
     <property object="UART_0" propertyId="uart.serialportcontrol.enablereceive" value="Enabled"/>
     <property object="UART_0" propertyId="uart.serialportcontrol.serialport0operationmode" value="9-bit"/>
-    <property object="UART_0" propertyId="uart.serialportcontrol.timer1overflowfrequency" value="19.261 kHz"/>
+    <property object="UART_0" propertyId="uart.serialportcontrol.timer1overflowfrequency" value="19.170 kHz"/>
     <property object="WDT_0" propertyId="ABPeripheral.included" value="true"/>
     <property object="WDT_0" propertyId="wdt.watchdogcontrol.wdtenable" value="Disable"/>
   </mode>

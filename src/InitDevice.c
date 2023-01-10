@@ -28,6 +28,8 @@ extern void enter_DefaultMode_from_RESET(void) {
 	PORTS_2_enter_DefaultMode_from_RESET();
 	PBCFG_0_enter_DefaultMode_from_RESET();
 	ADC_0_enter_DefaultMode_from_RESET();
+	HFOSC_0_enter_DefaultMode_from_RESET();
+	CIP51_0_enter_DefaultMode_from_RESET();
 	CLOCK_0_enter_DefaultMode_from_RESET();
 	TIMER01_0_enter_DefaultMode_from_RESET();
 	TIMER16_2_enter_DefaultMode_from_RESET();
@@ -116,8 +118,7 @@ extern void PORTS_0_enter_DefaultMode_from_RESET(void) {
 //================================================================================
 // PORTS_2_enter_DefaultMode_from_RESET
 //================================================================================
-extern void PORTS_2_enter_DefaultMode_from_RESET (void)
-{
+extern void PORTS_2_enter_DefaultMode_from_RESET(void) {
 	// $[P2 - Port 2 Pin Latch]
 	// [P2 - Port 2 Pin Latch]$
 
@@ -152,7 +153,7 @@ extern void PORTS_2_enter_DefaultMode_from_RESET (void)
 extern void PBCFG_0_enter_DefaultMode_from_RESET(void) {
 	// $[XBR2 - Port I/O Crossbar 2]
 	/***********************************************************************
-	 - Weak Pullups enabled
+	 - Weak Pullups enabled 
 	 - Crossbar enabled
 	 - UART1 I/O unavailable at Port pin
 	 - UART1 RTS1 unavailable at Port pin
@@ -206,9 +207,9 @@ extern void ADC_0_enter_DefaultMode_from_RESET(void) {
 	// $[ADC0CF0 - ADC0 Configuration]
 	/***********************************************************************
 	 - ADCCLK = SYSCLK
-	 - SAR Clock Divider = 0x01
+	 - SAR Clock Divider = 0x03
 	 ***********************************************************************/
-	ADC0CF0 = ADC0CF0_ADCLKSEL__SYSCLK | (0x01 << ADC0CF0_ADSC__SHIFT);
+	ADC0CF0 = ADC0CF0_ADCLKSEL__SYSCLK | (0x03 << ADC0CF0_ADSC__SHIFT);
 	// [ADC0CF0 - ADC0 Configuration]$
 
 	// $[ADC0CF1 - ADC0 Configuration]
@@ -247,14 +248,19 @@ extern void ADC_0_enter_DefaultMode_from_RESET(void) {
 //================================================================================
 extern void CLOCK_0_enter_DefaultMode_from_RESET(void) {
 	// $[HFOSC1 Setup]
+	// Ensure SYSCLK is > 24 MHz before switching to HFOSC1
+	SFRPAGE = 0x00;
+	CLKSEL = CLKSEL_CLKSL__HFOSC0 | CLKSEL_CLKDIV__SYSCLK_DIV_1;
+	while ((CLKSEL & CLKSEL_DIVRDY__BMASK) == CLKSEL_DIVRDY__NOT_READY)
+		;
 	// [HFOSC1 Setup]$
 
 	// $[CLKSEL - Clock Select]
 	/***********************************************************************
-	 - Clock derived from the Internal High Frequency Oscillator 0
+	 - Clock derived from the Internal High Frequency Oscillator 1
 	 - SYSCLK is equal to selected clock source divided by 1
 	 ***********************************************************************/
-	CLKSEL = CLKSEL_CLKSL__HFOSC0 | CLKSEL_CLKDIV__SYSCLK_DIV_1;
+	CLKSEL = CLKSEL_CLKSL__HFOSC1 | CLKSEL_CLKDIV__SYSCLK_DIV_1;
 	while ((CLKSEL & CLKSEL_DIVRDY__BMASK) == CLKSEL_DIVRDY__NOT_READY)
 		;
 	// [CLKSEL - Clock Select]$
@@ -282,9 +288,9 @@ extern void TIMER01_0_enter_DefaultMode_from_RESET(void) {
 
 	// $[TH1 - Timer 1 High Byte]
 	/***********************************************************************
-	 - Timer 1 High Byte = 0x96
+	 - Timer 1 High Byte = 0x2B
 	 ***********************************************************************/
-	TH1 = (0x96 << TH1_TH1__SHIFT);
+	TH1 = (0x2B << TH1_TH1__SHIFT);
 	// [TH1 - Timer 1 High Byte]$
 
 	// $[TL1 - Timer 1 Low Byte]
@@ -332,23 +338,19 @@ extern void TIMER16_2_enter_DefaultMode_from_RESET(void) {
 
 	// $[TMR2RLH - Timer 2 Reload High Byte]
 	/***********************************************************************
-	 - Timer 2 Reload High Byte = 0xF8
+	 - Timer 2 Reload High Byte = 0xF0
 	 ***********************************************************************/
-	TMR2RLH = (0xF8 << TMR2RLH_TMR2RLH__SHIFT);
+	TMR2RLH = (0xF0 << TMR2RLH_TMR2RLH__SHIFT);
 	// [TMR2RLH - Timer 2 Reload High Byte]$
 
 	// $[TMR2RLL - Timer 2 Reload Low Byte]
 	/***********************************************************************
-	 - Timer 2 Reload Low Byte = 0x06
+	 - Timer 2 Reload Low Byte = 0x0D
 	 ***********************************************************************/
-	TMR2RLL = (0x06 << TMR2RLL_TMR2RLL__SHIFT);
+	TMR2RLL = (0x0D << TMR2RLL_TMR2RLL__SHIFT);
 	// [TMR2RLL - Timer 2 Reload Low Byte]$
 
 	// $[TMR2CN0]
-	/***********************************************************************
-	 - Start Timer 2 running
-	 ***********************************************************************/
-	// TMR2CN0 |= TMR2CN0_TR2__RUN;
 	// [TMR2CN0]$
 
 	// $[Timer Restoration]
@@ -397,7 +399,7 @@ extern void UART_0_enter_DefaultMode_from_RESET(void) {
 	// $[SCON0 - UART0 Serial Port Control]
 	/***********************************************************************
 	 - UART0 reception enabled
-	 - 9-bit UART with Variable Baud Rate
+	 - 9-bit UART with Variable Baud Rate 
 	 ***********************************************************************/
 	SCON0 |= SCON0_REN__RECEIVE_ENABLED | SCON0_SMODE__9_BIT;
 	// [SCON0 - UART0 Serial Port Control]$
@@ -458,6 +460,28 @@ extern void INTERRUPT_0_enter_DefaultMode_from_RESET(void) {
 
 	// $[IPH - Interrupt Priority High]
 	// [IPH - Interrupt Priority High]$
+
+}
+
+extern void CIP51_0_enter_DefaultMode_from_RESET(void) {
+	// $[PFE0CN - Prefetch Engine Control]
+	/***********************************************************************
+	 - SYSCLK < 50 MHz
+	 ***********************************************************************/
+	PFE0CN = PFE0CN_FLRT__SYSCLK_BELOW_50_MHZ;
+	// [PFE0CN - Prefetch Engine Control]$
+
+}
+
+extern void HFOSC_0_enter_DefaultMode_from_RESET(void) {
+	// $[HFOCN - High Frequency Oscillator Control]
+	/***********************************************************************
+	 - Disable High Frequency Oscillator 0 
+	 - Force High Frequency Oscillator 1 to run
+	 ***********************************************************************/
+	SFRPAGE = 0x10;
+	HFOCN = HFOCN_HFO0EN__DISABLED | HFOCN_HFO1EN__ENABLED;
+	// [HFOCN - High Frequency Oscillator Control]$
 
 }
 

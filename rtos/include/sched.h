@@ -16,6 +16,8 @@ struct sched_task {
 	CoreReg_t sp;
 	uint8_t * stack;
 	unsigned int id;
+	uint8_t priority;
+	unsigned int delay;
 	TaskFunction_t func;
 	char * args;
 };
@@ -26,8 +28,10 @@ struct sched_ctx {
 };
 
 void xTaskInit(void);
-int xTaskCreate(TaskFunction_t pxTaskCode, const char * const pcName);
+int xTaskCreate(TaskFunction_t pxTaskCode, char * pcName, uint8_t priority, unsigned int delay);
 void xTaskDebug(void);
 void vTaskStartScheduler(void);
+//struct sched_task * xSwitchContext(struct sched_task * task) reentrant;
+struct sched_task * xSwitchContext(void);
 
 #endif
